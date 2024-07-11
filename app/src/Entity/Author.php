@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use App\Repository\AuthorRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AuthorRepository::class)]
 class Author
@@ -19,6 +20,7 @@ class Author
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Length (min: 3)]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 255, nullable: true)]
