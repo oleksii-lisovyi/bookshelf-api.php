@@ -16,10 +16,9 @@ final class Version20240711153429 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('CREATE SEQUENCE author_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql(<<<END
             CREATE TABLE IF NOT EXISTS author (
-                id SERIAL PRIMARY KEY , 
+                id SERIAL PRIMARY KEY,
                 firstname VARCHAR(255) NOT NULL,
                 lastname VARCHAR(255) NOT NULL, 
                 middlename VARCHAR(255) DEFAULT NULL 
@@ -30,8 +29,6 @@ END
 
     public function down(Schema $schema): void
     {
-        $this->addSql('CREATE SCHEMA public');
-        $this->addSql('DROP SEQUENCE author_id_seq CASCADE');
         $this->addSql('DROP TABLE author');
     }
 }
