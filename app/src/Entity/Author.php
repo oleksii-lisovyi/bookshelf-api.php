@@ -66,4 +66,14 @@ class Author
 
         return $this;
     }
+
+    public function asArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'firstname' => $this->getFirstname(),
+            'middlename' => $this->getMiddlename(),
+            'lastname' => $this->getLastname(),
+        ];
+    }
 }

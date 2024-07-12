@@ -38,3 +38,7 @@ Content-Type: application/json
     "lastname": "Tw"
 }
 
+###
+### Get all authors using pagination
+GET https://bookshelf.ddev.site/authors?limit=1&offset=2
+Content-Type: application/json

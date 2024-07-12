@@ -6,9 +6,11 @@ namespace App\Controller;
 
 use App\Entity\Author;
 use App\Model\AuthorDto;
+use App\Repository\AuthorRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -16,6 +18,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Route(path: "/authors", name: "authors_", format: 'json')]
 class AuthorController extends AbstractController
 {
+    private const PAGINATION_LIMIT_DEFAULT = 5;
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ValidatorInterface     $validator,
@@ -38,11 +42,17 @@ class AuthorController extends AbstractController
         $this->entityManager->persist($author);
         $this->entityManager->flush();
 
-        return $this->json([
-            'id' => $author->getId(),
-            'firstname' => $author->getFirstname(),
-            'middlename' => $author->getMiddlename(),
-            'lastname' => $author->getLastname(),
-        ]);
+        return $this->json($author->asArray());
+    }
+
+    #[Route(path: '', name: 'all', methods: ['GET'])]
+    public function all(AuthorRepository $repository, Request $request): JsonResponse
+    {
+        $limit = \max(0, $request->query->getInt('limit', self::PAGINATION_LIMIT_DEFAULT));
+        $offset = \max(0, $request->query->getInt('offset'));
+        
+        $paginator = $repository->get($limit, $offset);
+
+        return $this->json(\array_map(fn(Author $a) => $a->asArray(), (array)$paginator->getIterator()));
     }
 }
