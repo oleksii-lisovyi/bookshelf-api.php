@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Author;
 use App\Entity\Book;
 use App\Model\BookDto;
 use App\Repository\BookRepository;
@@ -39,9 +40,26 @@ class BookController extends AbstractController
         }
 
         $entityManager->persist($book);
+
+        foreach ($bookDto->authors as $a) {
+            $author = new Author();
+            $author->setFirstname($a->firstname)
+                ->setMiddlename($a->middlename ?? null)
+                ->setLastname($a->lastname);
+
+            $errors = $validator->validate($author);
+            if (\count($errors) > 0) {
+                return $this->json((string)$errors, 400);
+            }
+
+            $book->addAuthor($author);
+
+            $entityManager->persist($author);
+        }
+
         $entityManager->flush();
 
-        return $this->json($book->asArray());
+        return $this->json($book->asArray(true));
     }
 
     #[Route(path: '', name: 'all', methods: ['GET'])]

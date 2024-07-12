@@ -100,7 +100,7 @@ class Book
         return $this->authors;
     }
 
-    public function addAuthorId(Author $author): static
+    public function addAuthor(Author $author): static
     {
         if (!$this->authors->contains($author)) {
             $this->authors->add($author);

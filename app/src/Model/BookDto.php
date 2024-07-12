@@ -17,7 +17,13 @@ readonly class BookDto
         public ?string $image,
 
         #[Assert\Date]
-        public ?\DateTimeInterface $publishedAt
+        public ?\DateTimeInterface $publishedAt,
+
+        /**
+         * @var AuthorDto[]
+         */
+        #[Assert\NotBlank]
+        public array $authors
     ) {
     }
 }

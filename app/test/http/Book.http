@@ -4,10 +4,19 @@ POST https://bookshelf.ddev.site/books
 Content-Type: application/json
 
 {
-    "name": "In the woods",
-    "short_description": "this book is about something in the woods",
-    "image": "/path/to/image.png",
-    "published_at": "2022-02-23"
+    "name": "Sunrise Nights",
+    "short_description": "Two young artists have a chance meeting on the last night of summer arts camp in this YA novel in verse and dialogue cowritten by acclaimed authors Jeff Zentner and Brittany Cavallaro.",
+    "published_at": "2024-07-09",
+    "authors": [
+        {
+            "firstname": "Jeff",
+            "lastname": "Zentner"
+        },
+        {
+            "firstname": "Brittany",
+            "lastname": "Cavallaro"
+        }
+    ]
 }
 
 ###
