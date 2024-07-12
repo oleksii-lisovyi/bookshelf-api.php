@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\AuthorRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -25,6 +27,17 @@ class Author
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $middlename = null;
+
+    /**
+     * @var Collection<int, Book>
+     */
+    #[ORM\ManyToMany(targetEntity: Book::class, mappedBy: 'authors')]
+    private Collection $books;
+
+    public function __construct()
+    {
+        $this->books = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -67,13 +80,46 @@ class Author
         return $this;
     }
 
-    public function asArray(): array
+    public function asArray(bool $includeBooks = false): array
     {
-        return [
+        $result = [
             'id' => $this->getId(),
             'firstname' => $this->getFirstname(),
             'middlename' => $this->getMiddlename(),
             'lastname' => $this->getLastname(),
         ];
+
+        if ($includeBooks) {
+            $result['books'] = \array_map(fn(Book $b) => $b->asArray(), (array)$this->getBooks()->getIterator());
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return Collection<int, Book>
+     */
+    public function getBooks(): Collection
+    {
+        return $this->books;
+    }
+
+    public function addBook(Book $book): static
+    {
+        if (!$this->books->contains($book)) {
+            $this->books->add($book);
+            $book->addAuthorId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBook(Book $book): static
+    {
+        if ($this->books->removeElement($book)) {
+            $book->removeAuthor($this);
+        }
+
+        return $this;
     }
 }

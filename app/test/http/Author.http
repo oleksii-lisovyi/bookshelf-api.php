@@ -39,6 +39,11 @@ Content-Type: application/json
 }
 
 ###
-### Get all authors using pagination
+### Get authors specifying pagination
 GET https://bookshelf.ddev.site/authors?limit=1&offset=2
+Content-Type: application/json
+
+###
+### Get authors with books
+GET https://bookshelf.ddev.site/authors?limit=20&offset=0&include_books=1
 Content-Type: application/json

@@ -50,9 +50,10 @@ class AuthorController extends AbstractController
     {
         $limit = \max(0, $request->query->getInt('limit', self::PAGINATION_LIMIT_DEFAULT));
         $offset = \max(0, $request->query->getInt('offset'));
+        $includeBooks = $request->query->getBoolean('include_books');
         
         $paginator = $repository->get($limit, $offset);
 
-        return $this->json(\array_map(fn(Author $a) => $a->asArray(), (array)$paginator->getIterator()));
+        return $this->json(\array_map(fn(Author $a) => $a->asArray($includeBooks), (array)$paginator->getIterator()));
     }
 }
