@@ -20,27 +20,24 @@ class AuthorController extends AbstractController
 {
     private const PAGINATION_LIMIT_DEFAULT = 5;
 
-    public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-        private readonly ValidatorInterface     $validator,
-    ) {
-    }
-
     #[Route(path: '', name: 'create', methods: ['POST'])]
-    public function create(#[MapRequestPayload (acceptFormat: 'json')] AuthorDto $authorDto): JsonResponse
-    {
+    public function create(
+        #[MapRequestPayload (acceptFormat: 'json')] AuthorDto $authorDto,
+        EntityManagerInterface                                $entityManager,
+        ValidatorInterface                                    $validator
+    ): JsonResponse {
         $author = new Author();
         $author->setFirstname($authorDto->firstname)
             ->setMiddlename($authorDto->middlename ?? null)
             ->setLastname($authorDto->lastname);
 
-        $errors = $this->validator->validate($author);
+        $errors = $validator->validate($author);
         if (\count($errors) > 0) {
             return $this->json((string)$errors, 400);
         }
 
-        $this->entityManager->persist($author);
-        $this->entityManager->flush();
+        $entityManager->persist($author);
+        $entityManager->flush();
 
         return $this->json($author->asArray());
     }
@@ -51,7 +48,7 @@ class AuthorController extends AbstractController
         $limit = \max(0, $request->query->getInt('limit', self::PAGINATION_LIMIT_DEFAULT));
         $offset = \max(0, $request->query->getInt('offset'));
         $includeBooks = $request->query->getBoolean('include_books');
-        
+
         $paginator = $repository->get($limit, $offset);
 
         return $this->json(\array_map(fn(Author $a) => $a->asArray($includeBooks), (array)$paginator->getIterator()));
