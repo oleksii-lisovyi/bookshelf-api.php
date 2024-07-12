@@ -6,17 +6,18 @@ namespace App\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-readonly class AuthorDto
+readonly class BookDto
 {
     public function __construct(
         #[Assert\NotBlank]
-        public string $firstname,
+        public string $name,
 
-        public ?string $middlename,
+        public ?string $shortDescription,
 
-        #[Assert\NotBlank]
-        #[Assert\Length (min: 3)]
-        public string $lastname,
+        public ?string $image,
+
+        #[Assert\Date]
+        public ?\DateTimeInterface $publishedAt
     ) {
     }
 }
