@@ -41,3 +41,8 @@ Content-Type: application/json
 ### Get books using pagination
 GET https://bookshelf.ddev.site/books?include_authors=1
 Content-Type: application/json
+
+###
+### Get a book by its ID
+GET https://bookshelf.ddev.site/books/4?include_authors=1
+Content-Type: application/json

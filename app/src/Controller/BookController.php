@@ -84,4 +84,12 @@ class BookController extends AbstractController
 
         return $this->json(\array_map(fn(Book $b) => $b->asArray($includeAuthors), (array)$paginator->getIterator()));
     }
+
+    #[Route(path: '/{id}', name: 'one', methods: ['GET'])]
+    public function one(Book $book, Request $request): JsonResponse
+    {
+        $includeAuthors = $request->query->getBoolean('include_authors');
+
+        return $this->json($book->asArray($includeAuthors));
+    }
 }
