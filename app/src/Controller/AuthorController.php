@@ -10,15 +10,14 @@ use App\Repository\AuthorRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\HttpKernel\Attribute\{MapQueryParameter, MapRequestPayload};
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route(path: "/authors", name: "authors_", format: 'json')]
 class AuthorController extends AbstractController
 {
-    private const PAGINATION_LIMIT_DEFAULT = 5;
+    private const PAGINATION_LIMIT_DEFAULT = 10;
 
     #[Route(path: '', name: 'create', methods: ['POST'])]
     public function create(
@@ -43,14 +42,14 @@ class AuthorController extends AbstractController
     }
 
     #[Route(path: '', name: 'all', methods: ['GET'])]
-    public function all(AuthorRepository $repository, Request $request): JsonResponse
-    {
-        $limit = \max(0, $request->query->getInt('limit', self::PAGINATION_LIMIT_DEFAULT));
-        $offset = \max(0, $request->query->getInt('offset'));
-        $includeBooks = $request->query->getBoolean('include_books');
+    public function all(
+        AuthorRepository $repository, 
+        #[MapQueryParameter(filter: \FILTER_VALIDATE_INT, options: ['min_range' => 1, 'max_range' => 100])] int $limit = self::PAGINATION_LIMIT_DEFAULT,
+        #[MapQueryParameter(filter: \FILTER_VALIDATE_INT, options: ['min_range' => 0])] int $offset = 0,
+        #[MapQueryParameter] bool $include_books = false,
+    ): JsonResponse {
+        $paginator = $repository->getPagination($limit, $offset);
 
-        $paginator = $repository->get($limit, $offset);
-
-        return $this->json(\array_map(fn(Author $a) => $a->asArray($includeBooks), (array)$paginator->getIterator()));
+        return $this->json(\array_map(fn(Author $a) => $a->asArray($include_books), (array)$paginator->getIterator()));
     }
 }

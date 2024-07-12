@@ -55,3 +55,8 @@ Content-Type: application/json
 {
     "name": "NEW The Last of August"
 }
+
+###
+### Find books by author (full text search)
+GET https://bookshelf.ddev.site/books/search/by_author?q=gump
+Content-Type: application/json

@@ -13,8 +13,7 @@ use App\Repository\BookRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\HttpKernel\Attribute\{MapQueryParameter, MapRequestPayload};
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -74,23 +73,41 @@ class BookController extends AbstractController
     }
 
     #[Route(path: '', name: 'all', methods: ['GET'])]
-    public function all(BookRepository $repository, Request $request): JsonResponse
-    {
-        $limit = \max(0, $request->query->getInt('limit', self::PAGINATION_LIMIT_DEFAULT));
-        $offset = \max(0, $request->query->getInt('offset'));
-        $includeAuthors = $request->query->getBoolean('include_authors');
-
+    public function all(
+        BookRepository                                                                                          $repository,
+        #[MapQueryParameter(filter: \FILTER_VALIDATE_INT, options: ['min_range' => 1, 'max_range' => 100])] int $limit = self::PAGINATION_LIMIT_DEFAULT,
+        #[MapQueryParameter(filter: \FILTER_VALIDATE_INT, options: ['min_range' => 0])] int                     $offset = 0,
+        #[MapQueryParameter(name: 'include_authors')] bool                                                      $includeAuthors = false,
+    ): JsonResponse {
         $paginator = $repository->get($limit, $offset);
 
         return $this->json(\array_map(fn(Book $b) => $b->asArray($includeAuthors), (array)$paginator->getIterator()));
     }
 
     #[Route(path: '/{id}', name: 'one', methods: ['GET'])]
-    public function one(Book $book, Request $request): JsonResponse
-    {
-        $includeAuthors = $request->query->getBoolean('include_authors');
-
+    public function one(
+        Book                                               $book,
+        #[MapQueryParameter(name: 'include_authors')] bool $includeAuthors = false,
+    ): JsonResponse {
         return $this->json($book->asArray($includeAuthors));
+    }
+
+    #[Route(path: '/search/by_author', name: 'search_by_author', methods: ['GET'])]
+    public function findByAuthor(
+        #[MapQueryParameter] string $q, //TODO: add minimum search query length
+        AuthorRepository            $authorRepository
+    ): JsonResponse {
+        $authors = $authorRepository->findByText($q);
+
+        $books = [];
+
+        foreach ($authors as $a) {
+            foreach ($a->getBooks() as $ab) {
+                $books[$ab->getId()] = $ab;
+            }
+        }
+
+        return $this->json(\array_map(fn(Book $b) => $b->asArray(true), $books));
     }
 
     #[Route(path: '/{id}', name: 'update', methods: ['PUT'])]
