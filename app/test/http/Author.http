@@ -1,0 +1,40 @@
+### 
+### Create author with all possible info
+POST https://bookshelf.ddev.site/authors
+Content-Type: application/json
+
+{
+    "firstname": "TestF",
+    "middlename": "TestM",
+    "lastname": "TestL"
+}
+
+### 
+### Create author with only first and last names
+POST https://bookshelf.ddev.site/authors
+Content-Type: application/json
+
+{
+    "firstname": "OnlyF",
+    "lastname": "OnlyL"
+}
+
+### 
+### Attempt of create author with only first name results into ERROR
+POST https://bookshelf.ddev.site/authors
+Content-Type: application/json
+
+{
+    "firstname": "OnlyF"
+}
+
+### 
+### Attempt of create author with last name less than 3 symbols results into ERROR
+POST https://bookshelf.ddev.site/authors
+Content-Type: application/json
+
+{
+    "firstname": "OnlyF",
+    "lastname": "Tw"
+}
+
