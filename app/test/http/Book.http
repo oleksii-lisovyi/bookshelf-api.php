@@ -19,6 +19,24 @@ Content-Type: application/json
     ]
 }
 
+### 
+### Create book with existing authors
+POST https://bookshelf.ddev.site/books
+Content-Type: application/json
+
+{
+    "name": "The Last of August",
+    "short_description": "In the second brilliant, action-packed book in the Charlotte Holmes series, Jamie Watson and Charlotte Holmes are in a chase across Europe to untangle a web of shocking truths about the Holmes and Moriarty families.",
+    "published_at": "2018-02-06",
+    "authors": [
+        {
+            "id": 5,
+            "firstname": "Brittany",
+            "lastname": "Cavallaro"
+        }
+    ]
+}
+
 ###
 ### Get books using pagination
 GET https://bookshelf.ddev.site/books?include_authors=1

@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Author;
 use App\Entity\Book;
 use App\Model\BookDto;
+use App\Repository\AuthorRepository;
 use App\Repository\BookRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,10 +25,12 @@ class BookController extends AbstractController
     #[Route('', name: 'create', methods: ['POST'])]
     public function index(
         #[MapRequestPayload (acceptFormat: 'json')] BookDto $bookDto,
-        EntityManagerInterface                                $entityManager,
-        ValidatorInterface                                    $validator
-    ): JsonResponse
-    {
+        EntityManagerInterface                              $entityManager,
+        ValidatorInterface                                  $validator,
+        AuthorRepository                                    $authorRepository
+    ): JsonResponse {
+        // TODO: currently a new book is created every time.
+        //  Probably book name + publishing date can be a unique constraint.
         $book = new Book();
         $book->setName($bookDto->name)
             ->setShortDescription($bookDto->shortDescription)
@@ -42,19 +45,27 @@ class BookController extends AbstractController
         $entityManager->persist($book);
 
         foreach ($bookDto->authors as $a) {
-            $author = new Author();
-            $author->setFirstname($a->firstname)
-                ->setMiddlename($a->middlename ?? null)
-                ->setLastname($a->lastname);
+            if ($a->id) {
+                $author = $authorRepository->find($a->id);
 
-            $errors = $validator->validate($author);
-            if (\count($errors) > 0) {
-                return $this->json((string)$errors, 400);
+                if (!$author) {
+                    return $this->json('Author can not be found by ID ' . $a->id, 400);
+                }
+            } else {
+                $author = new Author();
+                $author->setFirstname($a->firstname)
+                    ->setMiddlename($a->middlename ?? null)
+                    ->setLastname($a->lastname);
+
+                $errors = $validator->validate($author);
+                if (\count($errors) > 0) {
+                    return $this->json((string)$errors, 400);
+                }
+                
+                $entityManager->persist($author);
             }
 
             $book->addAuthor($author);
-
-            $entityManager->persist($author);
         }
 
         $entityManager->flush();

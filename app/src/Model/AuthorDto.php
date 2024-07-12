@@ -9,6 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 readonly class AuthorDto
 {
     public function __construct(
+        public ?int $id,
+
         #[Assert\NotBlank]
         public string $firstname,
 
