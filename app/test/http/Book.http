@@ -46,3 +46,12 @@ Content-Type: application/json
 ### Get a book by its ID
 GET https://bookshelf.ddev.site/books/4?include_authors=1
 Content-Type: application/json
+
+### 
+### Update existing book name
+PUT https://bookshelf.ddev.site/books/7
+Content-Type: application/json
+
+{
+    "name": "NEW The Last of August"
+}

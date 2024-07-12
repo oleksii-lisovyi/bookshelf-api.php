@@ -6,7 +6,7 @@ namespace App\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-readonly class BookDto
+readonly class BookUpdateDto
 {
     public function __construct(
         #[Assert\NotBlank]
@@ -15,13 +15,7 @@ readonly class BookDto
         public ?string $shortDescription,
 
         #[Assert\Date]
-        public ?\DateTimeInterface $publishedAt,
-
-        /**
-         * @var AuthorDto[]
-         */
-        #[Assert\NotBlank]
-        public array $authors
+        public ?\DateTimeInterface $publishedAt
     ) {
     }
 }

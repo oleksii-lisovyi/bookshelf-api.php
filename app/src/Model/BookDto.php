@@ -14,8 +14,6 @@ readonly class BookDto
 
         public ?string $shortDescription,
 
-        public ?string $image,
-
         #[Assert\Date]
         public ?\DateTimeInterface $publishedAt,
 

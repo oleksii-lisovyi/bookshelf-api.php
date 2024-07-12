@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Author;
 use App\Entity\Book;
 use App\Model\BookDto;
+use App\Model\BookUpdateDto;
 use App\Repository\AuthorRepository;
 use App\Repository\BookRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,7 +35,6 @@ class BookController extends AbstractController
         $book = new Book();
         $book->setName($bookDto->name)
             ->setShortDescription($bookDto->shortDescription)
-            ->setImage($bookDto->image)
             ->setPublishedAt($bookDto->publishedAt);
 
         $errors = $validator->validate($book);
@@ -61,7 +61,7 @@ class BookController extends AbstractController
                 if (\count($errors) > 0) {
                     return $this->json((string)$errors, 400);
                 }
-                
+
                 $entityManager->persist($author);
             }
 
@@ -91,5 +91,27 @@ class BookController extends AbstractController
         $includeAuthors = $request->query->getBoolean('include_authors');
 
         return $this->json($book->asArray($includeAuthors));
+    }
+
+    #[Route(path: '/{id}', name: 'update', methods: ['PUT'])]
+    public function update(
+        Book                                                      $book,
+        #[MapRequestPayload (acceptFormat: 'json')] BookUpdateDto $bookDto,
+        EntityManagerInterface                                    $entityManager,
+        ValidatorInterface                                        $validator
+    ): JsonResponse {
+        $book->setName($bookDto->name)
+            ->setShortDescription($bookDto->shortDescription)
+            ->setPublishedAt($bookDto->publishedAt);
+
+        $errors = $validator->validate($book);
+        if (\count($errors) > 0) {
+            return $this->json((string)$errors, 400);
+        }
+
+        $entityManager->persist($book);
+        $entityManager->flush();
+
+        return $this->json($book->asArray(true));
     }
 }
