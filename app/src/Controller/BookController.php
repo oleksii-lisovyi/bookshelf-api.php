@@ -12,9 +12,11 @@ use App\Repository\AuthorRepository;
 use App\Repository\BookRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\Attribute\{MapQueryParameter, MapRequestPayload};
+use Symfony\Component\HttpKernel\Attribute\{MapQueryParameter, MapRequestPayload, MapUploadedFile};
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route(path: "/books", name: "books_", format: 'json')]
@@ -130,5 +132,24 @@ class BookController extends AbstractController
         $entityManager->flush();
 
         return $this->json($book->asArray(true));
+    }
+
+    #[Route(path: '/image/{id}', name: 'image', methods: ['POST'])]
+    public function uploadImage(
+        Book         $book,
+        #[MapUploadedFile([
+            new Assert\File(mimeTypes: ['image/png', 'image/jpeg']),
+            new Assert\Image(maxSize: '2M', filenameMaxLength: 255)
+        ], name: 'image')]
+        UploadedFile $file,
+        EntityManagerInterface $entityManager
+    ): JsonResponse
+    {
+        $book->setImageFile($file);
+        
+        $entityManager->persist($book);
+        $entityManager->flush();
+        
+        return $this->json($book->asArray());
     }
 }

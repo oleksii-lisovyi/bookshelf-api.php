@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\BookRepository;
@@ -7,8 +9,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
+#[Vich\Uploadable]
 class Book
 {
     #[ORM\Id]
@@ -25,6 +32,9 @@ class Book
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
+    #[Vich\UploadableField(mapping: 'books', fileNameProperty: 'image')]
+    private ?File $imageFile = null;
+
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $published_at = null;
 
@@ -34,7 +44,13 @@ class Book
     #[ORM\ManyToMany(targetEntity: Author::class, inversedBy: 'books')]
     private Collection $authors;
 
-    public function __construct()
+    #[ORM\Column]
+    private ?\DateTimeImmutable $updated_at = null;
+
+    public function __construct(
+        // Fixme: overcome error Typed property App\\Entity\\Book::$uploaderHelper must not be accessed before initialization
+//        private readonly UploaderHelper $uploaderHelper
+    )
     {
         $this->authors = new ArrayCollection();
     }
@@ -122,6 +138,7 @@ class Book
             'id' => $this->getId(),
             'name' => $this->getName(),
             'short_description' => $this->getShortDescription(),
+//            'image' => $this->uploaderHelper->asset($this),
             'image' => $this->getImage()
         ];
 
@@ -130,5 +147,36 @@ class Book
         }
 
         return $result;
+    }
+
+    /**
+     * @param File|UploadedFile|null $imageFile
+     */
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            // It is required that at least one field changes if you are using doctrine
+            // otherwise the event listeners won't be called and the file is lost
+            $this->updated_at = new \DateTimeImmutable();
+        }
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
+    {
+        $this->updated_at = $updated_at;
+
+        return $this;
     }
 }
