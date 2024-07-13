@@ -28,6 +28,12 @@ Content-Type: application/json
     "firstname": "OnlyF"
 }
 
+> {%
+    client.test("Request is failed due to missing required fields", function() {
+        client.assert(response.status !== 200, "Response status must be not 200");
+    });
+%}
+
 ### 
 ### Attempt of create author with last name less than 3 symbols results into ERROR
 POST https://bookshelf.ddev.site/authors
@@ -37,6 +43,12 @@ Content-Type: application/json
     "firstname": "OnlyF",
     "lastname": "Tw"
 }
+
+> {%
+    client.test("Request is failed due to lastname field value being too short", function() {
+        client.assert(response.status !== 200, "Response status must be not 200");
+    });
+%}
 
 ###
 ### Get authors specifying pagination
