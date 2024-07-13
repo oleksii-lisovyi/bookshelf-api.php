@@ -43,10 +43,10 @@ class AuthorController extends AbstractController
 
     #[Route(path: '', name: 'all', methods: ['GET'])]
     public function all(
-        AuthorRepository $repository, 
+        AuthorRepository                                                                                        $repository,
         #[MapQueryParameter(filter: \FILTER_VALIDATE_INT, options: ['min_range' => 1, 'max_range' => 100])] int $limit = self::PAGINATION_LIMIT_DEFAULT,
-        #[MapQueryParameter(filter: \FILTER_VALIDATE_INT, options: ['min_range' => 0])] int $offset = 0,
-        #[MapQueryParameter] bool $include_books = false,
+        #[MapQueryParameter(filter: \FILTER_VALIDATE_INT, options: ['min_range' => 0])] int                     $offset = 0,
+        #[MapQueryParameter] bool                                                                               $include_books = false,
     ): JsonResponse {
         $paginator = $repository->getPagination($limit, $offset);
 

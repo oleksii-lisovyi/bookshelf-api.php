@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Author;
-use App\Entity\Book;
-use App\Model\BookDto;
-use App\Model\BookUpdateDto;
-use App\Repository\AuthorRepository;
-use App\Repository\BookRepository;
+use App\Entity\{Author, Book};
+use App\Model\{BookDto, BookUpdateDto};
+use App\Repository\{AuthorRepository, BookRepository};
+use App\Service\BookToArray;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -23,6 +21,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class BookController extends AbstractController
 {
     const PAGINATION_LIMIT_DEFAULT = 5;
+
+    public function __construct(private readonly BookToArray $bookToArray)
+    {
+    }
 
     #[Route('', name: 'create', methods: ['POST'])]
     public function index(
@@ -71,7 +73,7 @@ class BookController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->json($book->asArray(true));
+        return $this->json($this->bookToArray->execute($book, true));
     }
 
     #[Route(path: '', name: 'all', methods: ['GET'])]
@@ -83,7 +85,10 @@ class BookController extends AbstractController
     ): JsonResponse {
         $paginator = $repository->get($limit, $offset);
 
-        return $this->json(\array_map(fn(Book $b) => $b->asArray($includeAuthors), (array)$paginator->getIterator()));
+        return $this->json(\array_map(
+            fn(Book $b) => $this->bookToArray->execute($b, $includeAuthors),
+            (array)$paginator->getIterator()
+        ));
     }
 
     #[Route(path: '/{id}', name: 'one', methods: ['GET'])]
@@ -91,7 +96,7 @@ class BookController extends AbstractController
         Book                                               $book,
         #[MapQueryParameter(name: 'include_authors')] bool $includeAuthors = false,
     ): JsonResponse {
-        return $this->json($book->asArray($includeAuthors));
+        return $this->json($this->bookToArray->execute($book, $includeAuthors));
     }
 
     #[Route(path: '/search/by_author', name: 'search_by_author', methods: ['GET'])]
@@ -109,7 +114,7 @@ class BookController extends AbstractController
             }
         }
 
-        return $this->json(\array_map(fn(Book $b) => $b->asArray(true), $books));
+        return $this->json(\array_map(fn(Book $b) => $this->bookToArray->execute($b, true), $books));
     }
 
     #[Route(path: '/{id}', name: 'update', methods: ['PUT'])]
@@ -131,25 +136,24 @@ class BookController extends AbstractController
         $entityManager->persist($book);
         $entityManager->flush();
 
-        return $this->json($book->asArray(true));
+        return $this->json($this->bookToArray->execute($book, true));
     }
 
     #[Route(path: '/image/{id}', name: 'image', methods: ['POST'])]
     public function uploadImage(
-        Book         $book,
+        Book                   $book,
         #[MapUploadedFile([
             new Assert\File(mimeTypes: ['image/png', 'image/jpeg']),
-            new Assert\Image(maxSize: '2M', filenameMaxLength: 255)
+            new Assert\Image(maxSize: '2M', filenameMaxLength: 255),
         ], name: 'image')]
-        UploadedFile $file,
+        UploadedFile           $file,
         EntityManagerInterface $entityManager
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $book->setImageFile($file);
-        
+
         $entityManager->persist($book);
         $entityManager->flush();
-        
-        return $this->json($book->asArray());
+
+        return $this->json($this->bookToArray->execute($book,));
     }
 }

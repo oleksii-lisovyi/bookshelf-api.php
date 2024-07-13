@@ -39,7 +39,7 @@ Content-Type: application/json
 
 ###
 ### Get books using pagination
-GET https://bookshelf.ddev.site/books?include_authors=1
+GET https://bookshelf.ddev.site/books?limit=10&include_authors=1
 Content-Type: application/json
 
 ###

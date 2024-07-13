@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\BookRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\{ArrayCollection,Collection};
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\File\{File,UploadedFile};
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
-use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 #[Vich\Uploadable]
@@ -47,10 +44,7 @@ class Book
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
 
-    public function __construct(
-        // Fixme: overcome error Typed property App\\Entity\\Book::$uploaderHelper must not be accessed before initialization
-//        private readonly UploaderHelper $uploaderHelper
-    )
+    public function __construct()
     {
         $this->authors = new ArrayCollection();
     }
@@ -130,23 +124,6 @@ class Book
         $this->authors->removeElement($author);
 
         return $this;
-    }
-
-    public function asArray(bool $includeAuthors = false): array
-    {
-        $result = [
-            'id' => $this->getId(),
-            'name' => $this->getName(),
-            'short_description' => $this->getShortDescription(),
-//            'image' => $this->uploaderHelper->asset($this),
-            'image' => $this->getImage()
-        ];
-
-        if ($includeAuthors) {
-            $result['authors'] = \array_map(fn(Author $a) => $a->asArray(), (array)$this->getAuthors()->getIterator());
-        }
-
-        return $result;
     }
 
     /**
