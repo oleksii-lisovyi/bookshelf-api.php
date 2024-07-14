@@ -13,6 +13,7 @@ database:
     version: "15"
 use_dns_when_possible: true
 composer_version: "2"
+composer_root: app
 web_environment: []
 corepack_enable: false
 hooks:
