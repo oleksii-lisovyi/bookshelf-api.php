@@ -17,7 +17,7 @@ class BookRepository extends ServiceEntityRepository
         parent::__construct($registry, Book::class);
     }
     
-    public function get(int $limit, int $offset): Paginator
+    public function getPagination(int $limit, int $offset): Paginator
     {
         $query = $this->createQueryBuilder('b')
             ->orderBy('b.name')

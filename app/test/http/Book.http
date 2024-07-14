@@ -44,7 +44,7 @@ Content-Type: application/json
 
 ###
 ### Get a book by its ID
-GET https://bookshelf.ddev.site/books/4?include_authors=1
+GET https://bookshelf.ddev.site/books/3?include_authors=1
 Content-Type: application/json
 
 ### 

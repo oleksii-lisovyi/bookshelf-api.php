@@ -38,7 +38,8 @@ class BookController extends AbstractController
         $book = new Book();
         $book->setName($bookDto->name)
             ->setShortDescription($bookDto->shortDescription)
-            ->setPublishedAt($bookDto->publishedAt);
+            ->setPublishedAt($bookDto->publishedAt)
+            ->setUpdatedAt(new \DateTimeImmutable());
 
         $errors = $validator->validate($book);
         if (\count($errors) > 0) {
@@ -83,7 +84,7 @@ class BookController extends AbstractController
         #[MapQueryParameter(filter: \FILTER_VALIDATE_INT, options: ['min_range' => 0])] int                     $offset = 0,
         #[MapQueryParameter(name: 'include_authors')] bool                                                      $includeAuthors = false,
     ): JsonResponse {
-        $paginator = $repository->get($limit, $offset);
+        $paginator = $repository->getPagination($limit, $offset);
 
         return $this->json(\array_map(
             fn(Book $b) => $this->bookToArray->execute($b, $includeAuthors),
