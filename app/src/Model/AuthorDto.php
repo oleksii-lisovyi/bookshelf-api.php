@@ -19,6 +19,11 @@ readonly class AuthorDto
         #[Assert\NotBlank]
         #[Assert\Length (min: 3)]
         public string $lastname,
+
+        /**
+         * @var BookDto[]
+         */
+        public array $books = []
     ) {
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Model\AuthorDto;
 use App\Repository\AuthorRepository;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
@@ -79,22 +80,6 @@ class Author
         return $this;
     }
 
-    public function asArray(bool $includeBooks = false): array
-    {
-        $result = [
-            'id' => $this->getId(),
-            'firstname' => $this->getFirstname(),
-            'middlename' => $this->getMiddlename(),
-            'lastname' => $this->getLastname(),
-        ];
-
-        if ($includeBooks) {
-            $result['books'] = \array_map(fn(Book $b) => $b->asArray(), (array)$this->getBooks()->getIterator());
-        }
-
-        return $result;
-    }
-
     /**
      * @return Collection<int, Book>
      */
@@ -120,5 +105,15 @@ class Author
         }
 
         return $this;
+    }
+
+    public static function fromDto(AuthorDto $dto): static
+    {
+        $author = new Author();
+        $author->setFirstname($dto->firstname)
+            ->setMiddlename($dto->middlename ?? null)
+            ->setLastname($dto->lastname);
+
+        return $author;
     }
 }

@@ -7,7 +7,7 @@ namespace App\Controller;
 use App\Entity\{Author, Book};
 use App\Model\{BookDto, BookUpdateDto};
 use App\Repository\{AuthorRepository, BookRepository};
-use App\Service\BookToArray;
+use App\Service\EntityToArray;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -22,7 +22,7 @@ class BookController extends AbstractController
 {
     const PAGINATION_LIMIT_DEFAULT = 5;
 
-    public function __construct(private readonly BookToArray $bookToArray)
+    public function __construct(private readonly EntityToArray $entityToArray)
     {
     }
 
@@ -32,14 +32,11 @@ class BookController extends AbstractController
         EntityManagerInterface                              $entityManager,
         ValidatorInterface                                  $validator,
         AuthorRepository                                    $authorRepository
-    ): JsonResponse {
+    ): JsonResponse
+    {
         // TODO: currently a new book is created every time.
         //  Probably book name + publishing date can be a unique constraint.
-        $book = new Book();
-        $book->setName($bookDto->name)
-            ->setShortDescription($bookDto->shortDescription)
-            ->setPublishedAt($bookDto->publishedAt)
-            ->setUpdatedAt(new \DateTimeImmutable());
+        $book = Book::fromDto($bookDto);
 
         $errors = $validator->validate($book);
         if (\count($errors) > 0) {
@@ -48,18 +45,15 @@ class BookController extends AbstractController
 
         $entityManager->persist($book);
 
-        foreach ($bookDto->authors as $a) {
-            if ($a->id) {
-                $author = $authorRepository->find($a->id);
+        foreach ($bookDto->authors as $authorDto) {
+            if ($authorDto->id) {
+                $author = $authorRepository->find($authorDto->id);
 
                 if (!$author) {
-                    return $this->json('Author can not be found by ID ' . $a->id, 400);
+                    return $this->json('Author can not be found by ID ' . $authorDto->id, 400);
                 }
             } else {
-                $author = new Author();
-                $author->setFirstname($a->firstname)
-                    ->setMiddlename($a->middlename ?? null)
-                    ->setLastname($a->lastname);
+                $author = Author::fromDto($authorDto);
 
                 $errors = $validator->validate($author);
                 if (\count($errors) > 0) {
@@ -74,7 +68,7 @@ class BookController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->json($this->bookToArray->execute($book, true));
+        return $this->json($this->entityToArray->bookToArray($book, true));
     }
 
     #[Route(path: '', name: 'all', methods: ['GET'])]
@@ -83,11 +77,12 @@ class BookController extends AbstractController
         #[MapQueryParameter(filter: \FILTER_VALIDATE_INT, options: ['min_range' => 1, 'max_range' => 100])] int $limit = self::PAGINATION_LIMIT_DEFAULT,
         #[MapQueryParameter(filter: \FILTER_VALIDATE_INT, options: ['min_range' => 0])] int                     $offset = 0,
         #[MapQueryParameter(name: 'include_authors')] bool                                                      $includeAuthors = false,
-    ): JsonResponse {
+    ): JsonResponse
+    {
         $paginator = $repository->getPagination($limit, $offset);
 
         return $this->json(\array_map(
-            fn(Book $b) => $this->bookToArray->execute($b, $includeAuthors),
+            fn(Book $b) => $this->entityToArray->bookToArray($b, $includeAuthors),
             (array)$paginator->getIterator()
         ));
     }
@@ -96,15 +91,17 @@ class BookController extends AbstractController
     public function one(
         Book                                               $book,
         #[MapQueryParameter(name: 'include_authors')] bool $includeAuthors = false,
-    ): JsonResponse {
-        return $this->json($this->bookToArray->execute($book, $includeAuthors));
+    ): JsonResponse
+    {
+        return $this->json($this->entityToArray->bookToArray($book, $includeAuthors));
     }
 
     #[Route(path: '/search/by_author', name: 'search_by_author', methods: ['GET'])]
     public function findByAuthor(
         #[MapQueryParameter] string $q, //TODO: add minimum search query length
         AuthorRepository            $authorRepository
-    ): JsonResponse {
+    ): JsonResponse
+    {
         $authors = $authorRepository->findByText($q);
 
         $books = [];
@@ -115,7 +112,7 @@ class BookController extends AbstractController
             }
         }
 
-        return $this->json(\array_map(fn(Book $b) => $this->bookToArray->execute($b, true), $books));
+        return $this->json(\array_map(fn(Book $b) => $this->entityToArray->bookToArray($b, true), $books));
     }
 
     #[Route(path: '/{id}', name: 'update', methods: ['PUT'])]
@@ -124,7 +121,8 @@ class BookController extends AbstractController
         #[MapRequestPayload (acceptFormat: 'json')] BookUpdateDto $bookDto,
         EntityManagerInterface                                    $entityManager,
         ValidatorInterface                                        $validator
-    ): JsonResponse {
+    ): JsonResponse
+    {
         $book->setName($bookDto->name)
             ->setShortDescription($bookDto->shortDescription)
             ->setPublishedAt($bookDto->publishedAt);
@@ -137,7 +135,7 @@ class BookController extends AbstractController
         $entityManager->persist($book);
         $entityManager->flush();
 
-        return $this->json($this->bookToArray->execute($book, true));
+        return $this->json($this->entityToArray->bookToArray($book, true));
     }
 
     #[Route(path: '/image/{id}', name: 'image', methods: ['POST'])]
@@ -149,12 +147,13 @@ class BookController extends AbstractController
         ], name: 'image')]
         UploadedFile           $file,
         EntityManagerInterface $entityManager
-    ): JsonResponse {
+    ): JsonResponse
+    {
         $book->setImageFile($file);
 
         $entityManager->persist($book);
         $entityManager->flush();
 
-        return $this->json($this->bookToArray->execute($book,));
+        return $this->json($this->entityToArray->bookToArray($book,));
     }
 }

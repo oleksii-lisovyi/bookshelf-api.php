@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Model\BookDto;
 use App\Repository\BookRepository;
-use Doctrine\Common\Collections\{ArrayCollection,Collection};
+use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\HttpFoundation\File\{File,UploadedFile};
+use Symfony\Component\HttpFoundation\File\{File, UploadedFile};
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
@@ -83,7 +84,7 @@ class Book
         return $this->image;
     }
 
-    public function setImage(?string $image): static
+    public function setImage(string $image): static
     {
         $this->image = $image;
 
@@ -155,5 +156,16 @@ class Book
         $this->updated_at = $updatedAt;
 
         return $this;
+    }
+
+    public static function fromDto(BookDto $dto): static
+    {
+        $book = new Book();
+        $book->setName($dto->name)
+            ->setShortDescription($dto->short_description)
+            ->setPublishedAt(new \DateTimeImmutable($dto->published_at))
+            ->setUpdatedAt(new \DateTimeImmutable());
+
+        return $book;
     }
 }

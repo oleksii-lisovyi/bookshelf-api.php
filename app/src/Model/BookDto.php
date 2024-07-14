@@ -9,19 +9,21 @@ use Symfony\Component\Validator\Constraints as Assert;
 readonly class BookDto
 {
     public function __construct(
-        #[Assert\NotBlank]
-        public string $name,
+        public ?int    $id,
 
-        public ?string $shortDescription,
+        #[Assert\NotBlank]
+        public string  $name,
+
+        public ?string $short_description,
 
         #[Assert\Date]
-        public ?\DateTimeInterface $publishedAt,
+        public ?string $published_at,
 
         /**
          * @var AuthorDto[]
          */
-        #[Assert\NotBlank]
-        public array $authors
-    ) {
+        public array $authors = []
+    )
+    {
     }
 }

@@ -4,9 +4,20 @@ POST https://bookshelf.ddev.site/authors
 Content-Type: application/json
 
 {
-    "firstname": "TestF",
-    "middlename": "TestM",
-    "lastname": "TestL"
+    "firstname": "John",
+    "middlename": "Ronald",
+    "lastname": "Reuel",
+    "books": [
+        {
+            "name": "Sunrise Nights 7",
+            "short_description": "Two young artists have a chance meeting on the last night of summer arts camp in this YA novel in verse and dialogue cowritten by acclaimed authors Jeff Zentner and Brittany Cavallaro.",
+            "published_at": "2024-07-10"
+        },
+        {
+            "id": 6,
+            "name": "Sunrise Nights 3"
+        }
+    ]
 }
 
 ### 
@@ -15,8 +26,8 @@ POST https://bookshelf.ddev.site/authors
 Content-Type: application/json
 
 {
-    "firstname": "OnlyF",
-    "lastname": "OnlyL"
+    "firstname": "Susanna",
+    "lastname": "Eloise"
 }
 
 ### 
@@ -25,7 +36,7 @@ POST https://bookshelf.ddev.site/authors
 Content-Type: application/json
 
 {
-    "firstname": "OnlyF"
+    "firstname": "John"
 }
 
 > {%
@@ -40,8 +51,8 @@ POST https://bookshelf.ddev.site/authors
 Content-Type: application/json
 
 {
-    "firstname": "OnlyF",
-    "lastname": "Tw"
+    "firstname": "John",
+    "lastname": "Th"
 }
 
 > {%
@@ -52,7 +63,7 @@ Content-Type: application/json
 
 ###
 ### Get authors specifying pagination
-GET https://bookshelf.ddev.site/authors?limit=1&offset=2
+GET https://bookshelf.ddev.site/authors?limit=10&offset=0
 Content-Type: application/json
 
 ###
