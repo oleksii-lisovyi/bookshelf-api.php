@@ -70,7 +70,7 @@ Content-Type: multipart/form-data; boundary=WebAppBoundary
 Content-Disposition: form-data; name="image"; filename="small-img1.jpg"
 Content-Type: image/jpeg
 
-< ./img/small-img1.jpg
+< ./assets/small-img1.jpg
 --WebAppBoundary--
 
 ###
@@ -82,7 +82,7 @@ Content-Type: multipart/form-data; boundary=WebAppBoundary
 Content-Disposition: form-data; name="image"; filename="text.txt"
 Content-Type: text/plain
 
-< ./img/text.txt
+< ./assets/text.txt
 --WebAppBoundary--
 
 > {%
@@ -100,7 +100,7 @@ Content-Type: multipart/form-data; boundary=WebAppBoundary
 Content-Disposition: form-data; name="image"; filename="big-img1.jpg"
 Content-Type: image/jpeg
 
-< ./img/big-img1.jpg
+< ./assets/big-img1.jpg
 --WebAppBoundary--
 
 > {%

@@ -43,6 +43,7 @@ readonly class EntityToArray
             'short_description' => $book->getShortDescription(),
             'published_at' => $book->getPublishedAt()?->format('Y-m-d'),
             'image' => $this->uploaderHelper->asset($book),
+            'updated_at' => $book->getUpdatedAt()?->format('Y-m-d H:i:s')
         ];
 
         if ($includeAuthors) {

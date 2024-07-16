@@ -123,9 +123,17 @@ class BookController extends AbstractController
         ValidatorInterface                                        $validator
     ): JsonResponse
     {
-        $book->setName($bookDto->name)
-            ->setShortDescription($bookDto->shortDescription)
-            ->setPublishedAt($bookDto->publishedAt);
+        if ($bookDto->name !== null) {
+            $book->setName($bookDto->name);
+        }
+
+        if ($bookDto->shortDescription !== null) {
+            $book->setShortDescription($bookDto->shortDescription);
+        }
+
+        if ($bookDto->publishedAt !== null) {
+            $book->setPublishedAt($bookDto->publishedAt);
+        }
 
         $errors = $validator->validate($book);
         if (\count($errors) > 0) {

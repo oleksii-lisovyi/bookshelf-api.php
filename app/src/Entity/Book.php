@@ -9,6 +9,7 @@ use App\Repository\BookRepository;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\HttpFoundation\File\{File, UploadedFile};
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
@@ -42,8 +43,9 @@ class Book
     #[ORM\ManyToMany(targetEntity: Author::class, inversedBy: 'books')]
     private Collection $authors;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $updated_at = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Gedmo\Timestampable]
+    private ?\DateTimeImmutable $updated_at;
 
     public function __construct()
     {
@@ -84,7 +86,7 @@ class Book
         return $this->image;
     }
 
-    public function setImage(string $image): static
+    public function setImage(?string $image): static
     {
         $this->image = $image;
 
@@ -163,8 +165,7 @@ class Book
         $book = new Book();
         $book->setName($dto->name)
             ->setShortDescription($dto->short_description)
-            ->setPublishedAt(new \DateTimeImmutable($dto->published_at))
-            ->setUpdatedAt(new \DateTimeImmutable());
+            ->setPublishedAt(new \DateTimeImmutable($dto->published_at));
 
         return $book;
     }

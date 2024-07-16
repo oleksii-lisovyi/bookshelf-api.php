@@ -81,7 +81,7 @@ E.g. for local DDEV environment it's http://bookshelf.ddev.site.
 | `/authors`                | `GET`  | Lists created authors using pagination.                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `limit`: optional, number, from 1 to 100, defaults to 10<br>`offset`: optional, number, from 1<br>`include_books`: optional, boolean (1 or 0)  | List of created authors according to provided pagination params sorted by lastname alphabetically including books if specified. |
 
 Check out [Book.http](./app/test/http/Book.http) and [Author.http](./app/test/http/Author.http) files for API request examples for the implemented API endpoints.
-There are available some files in [img](./app/test/http/img) directory for testing purposes.
+There are available some files in [img](./app/test/http/assets) directory for testing purposes.
 
 ### Book image
 Book image (if uploaded) is available by the provided image path relative to base URL. 
