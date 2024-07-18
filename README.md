@@ -1,4 +1,4 @@
-# bookshelf-api.php
+# bookshelf-symfony.php
 
 ## Description
 
