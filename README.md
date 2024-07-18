@@ -2,7 +2,7 @@
 
 ## Description
 
-This project is a PHP application which allows you to manage your books & authors entities using REST API.
+This project is a test application which allows you to manage your books & authors entities using REST API.
 The application is implemented with PHP Symfony framework and PostgreSQL database for persisting data.
 
 ## Project setup
@@ -55,7 +55,31 @@ Once DDEV is installed you're ready for the next steps of the project startup.
    Feel free to remove `-n` option for the CLI command if you prefer to interact with the shell while execution.
 6. And that was it! Now you're ready to play around the API endpoints on http://bookshelf.ddev.site base URL.
    Please check out available API endpoints below.
-7. Optionally if you want to run the app on HTTPS please follow the instructions [DDEV Trusted HTTPS Certificates](https://ddev.com/blog/ddev-local-trusted-https-certificates/) how to do so. 
+7. Optionally if you want to run the app on HTTPS please follow the instructions [DDEV Trusted HTTPS Certificates](https://ddev.com/blog/ddev-local-trusted-https-certificates/) how to do so.
+
+### Data fixtures
+
+After the project is set up and running you may consider using data fixtures to have some data to play around.
+Execute the following command to add fixtures data into the DB on top of existing data if any:
+```shell
+ddev exec bin/console doctrine:fixtures:load --append
+```
+
+### Basic commands (after the installation)
+To stop the project execute:
+```shell
+ddev stop
+```
+
+To start the project execute:
+```shell
+ddev start
+```
+
+To delete the project completely (including DB) execute:
+```shell
+ddev delete --omit-snapshot
+```
 
 ## API endpoints
 
